@@ -39,6 +39,8 @@
       "Collect the Foreman worker diffs and review them before merging.",
       "Run a Foreman smoke test in treemark."
     ],
-    "brandColor": "#1F7A53"
+    "brandColor": "#1F7A53",
+    "composerIcon": "./assets/plugin-icon.svg",
+    "logo": "./assets/plugin-logo.svg"
   }
 }

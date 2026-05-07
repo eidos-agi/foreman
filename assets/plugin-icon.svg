@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Foreman icon">
+  <rect width="160" height="160" rx="36" fill="#ECFDF5"/>
+  <path d="M44 45h40c18 0 32 14 32 32v38" fill="none" stroke="#065F46" stroke-width="12" stroke-linecap="round"/>
+  <path d="M44 80h28c15 0 27 12 27 27v8" fill="none" stroke="#10B981" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="44" cy="45" r="13" fill="#064E3B"/>
+  <circle cx="44" cy="80" r="13" fill="#10B981"/>
+  <circle cx="116" cy="115" r="13" fill="#1F7A53"/>
+  <path d="M70 40l16 16M86 40L70 56" stroke="#F59E0B" stroke-width="7" stroke-linecap="round"/>
+</svg>
