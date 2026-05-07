@@ -27,6 +27,56 @@ Default engine commands:
 - `gemini --skip-trust --approval-mode yolo -p <prompt>`
 - `aider --yes-always --message <prompt>`
 
+## Install In Codex
+
+Clone the repo into the Eidos workspace:
+
+```bash
+mkdir -p /Users/dshanklinbv/repos-eidos-agi
+git clone git@github.com:eidos-agi/foreman.git /Users/dshanklinbv/repos-eidos-agi/foreman
+```
+
+Add the plugin to `~/.agents/plugins/marketplace.json`:
+
+```json
+{
+  "name": "foreman",
+  "source": {
+    "source": "local",
+    "path": "/Users/dshanklinbv/repos-eidos-agi/foreman"
+  },
+  "policy": {
+    "installation": "AVAILABLE",
+    "authentication": "ON_INSTALL"
+  },
+  "category": "Productivity"
+}
+```
+
+Enable the plugin and MCP server in `~/.codex/config.toml`:
+
+```toml
+[plugins."foreman@eidos-agi"]
+enabled = true
+
+[mcp_servers.foreman]
+transport = "stdio"
+command = "python3"
+args = ["/Users/dshanklinbv/repos-eidos-agi/foreman/scripts/mcp_server.py"]
+tool_timeout_sec = 1800
+```
+
+Restart Codex after editing config. Verify the MCP server:
+
+```bash
+printf '%s\n' \
+  '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' \
+  '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' \
+  | python3 /Users/dshanklinbv/repos-eidos-agi/foreman/scripts/mcp_server.py
+```
+
+The tools list should include `foreman_delegate`, `foreman_list`, `foreman_tail`, `foreman_monitor_hint`, `foreman_collect`, and `foreman_finalize`.
+
 ## Manual Smoke Test
 
 ```bash
