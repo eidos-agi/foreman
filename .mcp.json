@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "foreman": {
+      "transport": "stdio",
+      "command": "python3",
+      "args": [
+        "/Users/dshanklinbv/repos-eidos-agi/foreman/scripts/mcp_server.py"
+      ],
+      "tool_timeout_sec": 1800
+    }
+  }
+}
