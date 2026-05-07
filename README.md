@@ -1,6 +1,11 @@
 # Foreman
 
-Foreman is a local plugin/runtime prototype for delegating implementation work to AI engineer workers while Codex or another caller remains architect and QA.
+Foreman is an Eidos AGI Codex plugin/runtime for delegating implementation work to AI engineer workers while Codex or another caller remains architect and QA.
+
+It is part of the Eidos AGI plugin family alongside Rhea:
+
+- `rhea@eidos-agi`: sovereign model routing, debate, pairing, and image tools.
+- `foreman@eidos-agi`: multi-agent coding delegation and git worktree execution.
 
 The plugin exposes MCP tools:
 
@@ -36,14 +41,23 @@ mkdir -p /Users/dshanklinbv/repos-eidos-agi
 git clone git@github.com:eidos-agi/foreman.git /Users/dshanklinbv/repos-eidos-agi/foreman
 ```
 
-Add the plugin to `~/.agents/plugins/marketplace.json`:
+Install or refresh the Eidos AGI Codex plugin cache:
+
+```bash
+mkdir -p /Users/dshanklinbv/.codex/plugins/cache/eidos-agi/foreman/0.3.1
+rsync -a --delete --exclude '.git' --exclude '__pycache__' \
+  /Users/dshanklinbv/repos-eidos-agi/foreman/ \
+  /Users/dshanklinbv/.codex/plugins/cache/eidos-agi/foreman/0.3.1/
+```
+
+Add Foreman to the Eidos AGI marketplace at `~/.agents/plugins/marketplace.json`, next to Rhea:
 
 ```json
 {
   "name": "foreman",
   "source": {
     "source": "local",
-    "path": "/Users/dshanklinbv/repos-eidos-agi/foreman"
+    "path": "./plugins/foreman"
   },
   "policy": {
     "installation": "AVAILABLE",
@@ -76,6 +90,13 @@ printf '%s\n' \
 ```
 
 The tools list should include `foreman_delegate`, `foreman_list`, `foreman_tail`, `foreman_monitor_hint`, `foreman_collect`, and `foreman_finalize`.
+
+The expected installed shape mirrors Rhea:
+
+```text
+/Users/dshanklinbv/.codex/plugins/cache/eidos-agi/rhea/0.1.0
+/Users/dshanklinbv/.codex/plugins/cache/eidos-agi/foreman/0.3.1
+```
 
 ## Manual Smoke Test
 

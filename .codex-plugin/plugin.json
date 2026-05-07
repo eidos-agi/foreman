@@ -3,11 +3,11 @@
   "version": "0.3.1",
   "description": "Delegate scoped coding work to AI engineer workers in isolated git worktrees.",
   "author": {
-    "name": "Daniel Shanklin",
-    "email": "",
-    "url": ""
+    "name": "Eidos AGI",
+    "email": "TODO@example.com",
+    "url": "https://github.com/eidos-agi"
   },
-  "homepage": "",
+  "homepage": "https://github.com/eidos-agi/foreman",
   "repository": "https://github.com/eidos-agi/foreman",
   "license": "MIT",
   "keywords": [
@@ -25,15 +25,15 @@
     "displayName": "Foreman",
     "shortDescription": "Delegate coding tasks to AI workers in isolated worktrees.",
     "longDescription": "Run scoped Claude Code, Codex, Gemini, or Aider engineering workers in isolated git worktrees, then collect diffs back for architect review, tests, merge, PR, or discard.",
-    "developerName": "Daniel Shanklin",
+    "developerName": "Eidos AGI",
     "category": "Developer Tools",
     "capabilities": [
       "Code",
       "Automation"
     ],
-    "websiteURL": "",
-    "privacyPolicyURL": "",
-    "termsOfServiceURL": "",
+    "websiteURL": "https://github.com/eidos-agi/foreman",
+    "privacyPolicyURL": "https://github.com/eidos-agi/foreman",
+    "termsOfServiceURL": "https://github.com/eidos-agi/foreman",
     "defaultPrompt": [
       "Split this repo task into independent worker specs and delegate them with Foreman.",
       "Collect the Foreman worker diffs and review them before merging.",
