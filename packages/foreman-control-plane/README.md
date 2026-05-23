@@ -23,6 +23,7 @@ CLI form (compatibility, still supported):
 - `foreman control-submit`
 - `foreman control-jobs`
 - `foreman control-status <job_id>`
+- `foreman control-serve [--host 127.0.0.1] [--port 53640] [--quiet] [--once-smoke]`
 
 Package form (use when invoking the control plane as a standalone unit):
 
@@ -30,8 +31,35 @@ Package form (use when invoking the control plane as a standalone unit):
 - `python3 packages/foreman-control-plane/scripts/control.py submit --repo <path> --engine <engine> "<spec>"`
 - `python3 packages/foreman-control-plane/scripts/control.py jobs [--limit N]`
 - `python3 packages/foreman-control-plane/scripts/control.py status <job_id>`
+- `python3 packages/foreman-control-plane/scripts/control.py serve [--host 127.0.0.1] [--port 53640] [--quiet] [--once-smoke]`
 
 Both forms write to the same SQLite database under `FOREMAN_HOME` and are interchangeable.
+
+## HTTP API (`serve`)
+
+`control-serve` exposes a small JSON HTTP API backed by the same SQLite state. It records and reads jobs; it does not run them.
+
+- `GET /api/health` → `{ok, state_home, sqlite_path, pid}`
+- `GET /api/control/jobs?limit=N` → same shape as `control-jobs`
+- `GET /api/control/jobs/<job_id>` → same shape as `control-status` (includes events)
+- `POST /api/control/jobs` → JSON body matching `control-submit` fields (`repo_path` or `repo`, `engine`, `spec`, `base_ref`, `test_command`, `timeout_sec`, `caller`, `parent`, `run_id`, `contract`, `allow_dirty`); returns the same payload as `submit_control_job`
+
+`--once-smoke` binds the socket, prints a JSON status payload (`url`, `host`, `port`, `status`, `state_home`, `sqlite_path`, `pid`), and exits successfully. It is the supported way for tests to confirm argument parsing and binding without leaving a process running.
+
+Example:
+
+```sh
+# start the API on a fixed port
+python3 packages/foreman-control-plane/scripts/control.py serve --port 53640
+
+# health check
+curl -s http://127.0.0.1:53640/api/health
+
+# submit a job
+curl -s -X POST -H 'Content-Type: application/json' \
+    -d '{"repo":"~/repos/my-project","engine":"claude","spec":"Add a healthcheck"}' \
+    http://127.0.0.1:53640/api/control/jobs
+```
 
 ## Local usage
 

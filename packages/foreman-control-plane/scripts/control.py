@@ -28,6 +28,7 @@ SUBCOMMANDS = {
     "submit": "control-submit",
     "jobs": "control-jobs",
     "status": "control-status",
+    "serve": "control-serve",
 }
 
 

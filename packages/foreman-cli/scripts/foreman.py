@@ -353,6 +353,158 @@ def control_status(args: argparse.Namespace) -> dict[str, Any]:
     return {"job": control_job_payload(row, include_events=True)}
 
 
+def control_job_spec_from_body(body: dict[str, Any]) -> ControlJobSpec:
+    if not isinstance(body, dict):
+        raise ValueError("request body must be a JSON object")
+    spec = body.get("spec")
+    if not isinstance(spec, str) or not spec.strip():
+        raise ValueError("spec is required and must be a non-empty string")
+    repo_input = body.get("repo_path") or body.get("repo")
+    repo = normalize_repo(repo_input if isinstance(repo_input, str) else None)
+    engine = body.get("engine") or "claude"
+    if not isinstance(engine, str) or engine not in ENGINES:
+        raise ValueError(f"engine must be one of {list(ENGINES)}")
+    timeout_value = body.get("timeout_sec", DEFAULT_TIMEOUT_SEC)
+    try:
+        timeout_sec = int(timeout_value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"timeout_sec must be an integer: {timeout_value!r}") from exc
+
+    def _opt_str(key: str) -> str | None:
+        value = body.get(key)
+        if value is None:
+            return None
+        return str(value)
+
+    return ControlJobSpec(
+        repo_path=str(repo),
+        engine=engine,
+        spec=spec,
+        base_ref=_opt_str("base_ref"),
+        test_command=_opt_str("test_command"),
+        timeout_sec=timeout_sec,
+        caller=str(body.get("caller") or ""),
+        parent=str(body.get("parent") or ""),
+        run_id=str(body.get("run_id") or ""),
+        contract=str(body.get("contract") or ""),
+        allow_dirty=bool(body.get("allow_dirty")),
+    )
+
+
+def control_serve(args: argparse.Namespace) -> dict[str, Any] | None:
+    init_db()
+
+    class Handler(http.server.BaseHTTPRequestHandler):
+        server_version = "ForemanControlPlane/0.1"
+
+        def log_message(self, fmt: str, *values: Any) -> None:
+            if not args.quiet:
+                super().log_message(fmt, *values)
+
+        def send_json(self, payload: dict[str, Any], status: int = 200) -> None:
+            body = json.dumps(payload, indent=2).encode("utf-8")
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def read_json_body(self) -> dict[str, Any]:
+            length = int(self.headers.get("Content-Length") or "0")
+            if length <= 0:
+                return {}
+            raw = self.rfile.read(length).decode("utf-8")
+            try:
+                payload = json.loads(raw)
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"invalid JSON body: {exc}") from exc
+            if not isinstance(payload, dict):
+                raise ValueError("JSON body must be an object")
+            return payload
+
+        def do_GET(self) -> None:
+            parsed = urllib.parse.urlparse(self.path)
+            path = parsed.path
+            query = urllib.parse.parse_qs(parsed.query)
+            if path == "/api/health":
+                self.send_json(
+                    {
+                        "ok": True,
+                        "state_home": str(STATE_HOME),
+                        "sqlite_path": str(DB_PATH),
+                        "pid": os.getpid(),
+                    }
+                )
+                return
+            if path == "/api/control/jobs":
+                limit_raw = query.get("limit", ["20"])[0]
+                try:
+                    limit = int(limit_raw)
+                except ValueError:
+                    self.send_json({"error": f"invalid limit: {limit_raw!r}"}, status=400)
+                    return
+                self.send_json(control_jobs(argparse.Namespace(limit=limit)))
+                return
+            if path.startswith("/api/control/jobs/"):
+                job_id = path[len("/api/control/jobs/"):].strip("/")
+                if not job_id or "/" in job_id:
+                    self.send_json({"error": "not found"}, status=404)
+                    return
+                try:
+                    self.send_json(control_status(argparse.Namespace(job_id=job_id)))
+                except SystemExit as exc:
+                    self.send_json({"error": str(exc)}, status=404)
+                return
+            self.send_json({"error": "not found"}, status=404)
+
+        def do_POST(self) -> None:
+            parsed = urllib.parse.urlparse(self.path)
+            path = parsed.path
+            if path == "/api/control/jobs":
+                try:
+                    body = self.read_json_body()
+                    job_spec = control_job_spec_from_body(body)
+                except ValueError as exc:
+                    self.send_json({"error": str(exc)}, status=400)
+                    return
+                self.send_json(submit_control_job(job_spec), status=201)
+                return
+            self.send_json({"error": "not found"}, status=404)
+
+    server = http.server.ThreadingHTTPServer((args.host, args.port), Handler)
+    server.timeout = 1.0
+    host, port = server.server_address
+    url = f"http://{host}:{port}"
+
+    if args.once_smoke:
+        try:
+            return {
+                "status": "ok",
+                "url": url,
+                "host": host,
+                "port": port,
+                "state_home": str(STATE_HOME),
+                "sqlite_path": str(DB_PATH),
+                "pid": os.getpid(),
+            }
+        finally:
+            server.server_close()
+
+    if not args.quiet:
+        print(f"[foreman-control-serve] {url}", flush=True)
+        print(f"[foreman-control-serve] state_home={STATE_HOME}", flush=True)
+    try:
+        while True:
+            server.handle_request()
+    except KeyboardInterrupt:
+        if not args.quiet:
+            print("\n[foreman-control-serve] stopped", flush=True)
+    finally:
+        server.server_close()
+    return None
+
+
 def lease_control_job(agent_id: str, lease_sec: int) -> sqlite3.Row | None:
     init_db()
     deadline = now() + lease_sec
@@ -2242,6 +2394,17 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("control-status")
     p.add_argument("job_id")
     p.set_defaults(func=control_status)
+
+    p = sub.add_parser("control-serve")
+    p.add_argument("--host", default="127.0.0.1")
+    p.add_argument("--port", type=int, default=53640, help="port to bind; pass 0 to pick a free port")
+    p.add_argument("--quiet", action="store_true", help="suppress HTTP access logs")
+    p.add_argument(
+        "--once-smoke",
+        action="store_true",
+        help="bind, print a JSON status payload, and exit (used for smoke tests)",
+    )
+    p.set_defaults(func=control_serve)
 
     p = sub.add_parser("agent-run")
     p.add_argument("--agent-id", default=None)

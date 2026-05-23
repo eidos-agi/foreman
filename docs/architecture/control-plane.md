@@ -65,6 +65,19 @@ The control plane stores state. Agents do work. The split is not cosmetic.
 - **Failure isolation.** If a worker crashes, its lease expires and another worker can take the job. If the control plane restarts, in-flight rows stay pending or leased and resume cleanly. No single component is a fan-in for the others' failure modes.
 - **Genericness.** The control plane has nothing to say about what an engine is or what a spec means. That keeps it reusable across domains. Caller-owned behavior belongs in the system that submits jobs or in the worker that runs them, not here.
 
+## HTTP surface
+
+The control plane exposes a small JSON API over HTTP via `control-serve`. The endpoints are read/write surfaces over the same SQLite state and never spawn worker processes:
+
+- `GET /api/health` — process liveness; returns `{ok, state_home, sqlite_path, pid}`
+- `GET /api/control/jobs?limit=N` — list recent jobs in the same shape as the `control-jobs` CLI
+- `GET /api/control/jobs/<job_id>` — single job with events, identical to `control-status`
+- `POST /api/control/jobs` — JSON-encoded equivalent of `control-submit`; returns the `submit_control_job` payload
+
+The HTTP surface is a coordination boundary, not an execution boundary. Callers (humans, MCP clients, hosted UIs) submit and read state. Workers continue to lease jobs through the agent runtime; the API has no endpoint that runs a worker command, and a hosted deployment must keep it that way.
+
+`control-serve --once-smoke` is the supported smoke-test mode: it binds, prints a JSON payload (`url`, `host`, `port`, `status`, `state_home`, `sqlite_path`, `pid`), and exits without entering the request loop. This is how tests verify wiring without leaving a process running.
+
 ## Connectivity model
 
 The control plane is an outbound target, not an inbound orchestrator.
