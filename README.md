@@ -7,7 +7,7 @@ Foreman is an Eidos AGI Codex plugin/runtime for delegating implementation work 
 It is part of the Eidos AGI plugin family alongside Rhea:
 
 - `rhea@eidos-agi`: sovereign model routing, debate, pairing, and image tools.
-- `foreman@eidos-agi`: multi-agent coding delegation and git worktree execution.
+- `foreman@eidos-marketplace`: multi-agent coding delegation and git worktree execution.
 
 The plugin exposes MCP tools:
 
@@ -118,10 +118,11 @@ git clone git@github.com:eidos-agi/foreman.git ~/repos-eidos-agi/foreman
 claude --plugin-dir ~/repos-eidos-agi/foreman    # single-session use
 ```
 
-**2. Once published to a marketplace:**
+**2. Eidos Marketplace install:**
 
 ```bash
-claude plugin install foreman@eidos-agi
+claude plugins marketplace add eidos-agi/eidos-marketplace
+claude plugins install foreman@eidos-marketplace
 ```
 
 The plugin exposes:
@@ -211,7 +212,7 @@ Add Foreman to the Eidos AGI marketplace at `~/.agents/plugins/marketplace.json`
 Enable the plugin and MCP server in `~/.codex/config.toml`:
 
 ```toml
-[plugins."foreman@eidos-agi"]
+[plugins."foreman@eidos-marketplace"]
 enabled = true
 
 [mcp_servers.foreman]
