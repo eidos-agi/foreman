@@ -1,0 +1,1 @@
+"""Foreman MCP package marker."""

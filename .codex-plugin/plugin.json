@@ -4,7 +4,7 @@
   "description": "Delegate scoped coding work to AI engineer workers in isolated git worktrees.",
   "author": {
     "name": "Eidos AGI",
-    "email": "TODO@example.com",
+    "email": "daniel@eidosagi.com",
     "url": "https://github.com/eidos-agi"
   },
   "homepage": "https://github.com/eidos-agi/foreman",
@@ -39,8 +39,8 @@
       "Collect the Foreman worker diffs and review them before merging.",
       "Run a Foreman smoke test in treemark."
     ],
-    "brandColor": "#1F7A53",
-    "composerIcon": "./assets/plugin-icon.svg",
-    "logo": "./assets/plugin-logo.svg"
+    "brandColor": "#065F46",
+    "composerIcon": "./assets/foreman-rhea-icon.png",
+    "logo": "./assets/foreman-rhea-logo.png"
   }
 }

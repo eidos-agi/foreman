@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eidos-foreman"
+version = "0.3.1"
+description = "AI coding worker delegation runtime with CLI and MCP surfaces."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{name = "Eidos AGI", email = "daniel@eidosagi.com"}]
+keywords = ["agents", "mcp", "codex", "claude-code", "worktrees", "delegation"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Build Tools",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "build>=1.2",
+  "pytest>=8.0",
+  "twine>=5.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/eidos-agi/foreman"
+Repository = "https://github.com/eidos-agi/foreman"
+Issues = "https://github.com/eidos-agi/foreman/issues"
+
+[project.scripts]
+foreman = "foreman_cli_scripts.foreman:main"
+foreman-mcp = "foreman_mcp_scripts.mcp_server:main"
+
+[project.entry-points."mcp"]
+foreman = "foreman_mcp_scripts.mcp_server:main"
+
+[tool.setuptools]
+packages = ["foreman_cli_scripts", "foreman_mcp_scripts"]
+
+[tool.setuptools.package-dir]
+foreman_cli_scripts = "packages/foreman-cli/scripts"
+foreman_mcp_scripts = "packages/foreman-mcp/scripts"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,28 @@
+{
+  "name": "foreman",
+  "version": "0.3.1",
+  "description": "Delegate scoped coding work to AI engineer workers in isolated git worktrees.",
+  "author": {
+    "name": "Eidos AGI",
+    "url": "https://github.com/eidos-agi"
+  },
+  "homepage": "https://github.com/eidos-agi/foreman",
+  "repository": "https://github.com/eidos-agi/foreman",
+  "license": "MIT",
+  "logo": "./assets/foreman-rhea-logo.png",
+  "keywords": [
+    "claude-code",
+    "codex",
+    "worktrees",
+    "delegation",
+    "parallel-agents",
+    "ai-fleet"
+  ],
+  "skills": "./skills/",
+  "mcpServers": {
+    "foreman": {
+      "command": "python3",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/mcp_server.py"]
+    }
+  }
+}

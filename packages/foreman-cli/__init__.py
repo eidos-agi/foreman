@@ -1,0 +1,1 @@
+"""Foreman CLI package marker."""
