@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog, and this project uses semantic
 versioning.
 
-## [0.3.1] - 2026-05-20
+## [0.3.1] - 2026-05-23
 
 ### Added
 - PyPI packaging metadata for `eidos-foreman`.
@@ -17,3 +17,7 @@ versioning.
 ### Changed
 - MCP shim can resolve the Foreman CLI from either a local checkout or an
   installed wheel.
+- Publish verification now smoke-tests the installed `foreman-mcp` JSON-RPC
+  tool listing before uploading to PyPI.
+- README install guidance now distinguishes the source install path from the
+  PyPI path until the first PyPI release is live.

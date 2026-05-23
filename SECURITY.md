@@ -26,3 +26,14 @@ days for critical issues.
 
 We follow coordinated disclosure. Please give us reasonable time to address the
 issue before public disclosure.
+
+## Release Security Checks
+
+Before publishing a Foreman release, run:
+
+```bash
+gitleaks detect --source . --no-git --redact --exit-code 1
+python -m pip_audit --path .venv/lib/python3.11/site-packages
+```
+
+Release-blocking findings must be fixed before creating a version tag.

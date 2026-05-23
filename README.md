@@ -149,11 +149,21 @@ that makes parallel agent fleets legible.
 If you want one-shot delegation without the daemon, foreman supports a
 no-daemon mode for the simplest cases — but you lose the web terminal.
 
-## Install From PyPI
+## PyPI Package
 
 Foreman is packaged for PyPI as `eidos-foreman` because the plain `foreman`
 package name is already owned by another project. The installed command remains
 `foreman`.
+
+Until the first PyPI release is published, install from the source repo:
+
+```bash
+pip install git+https://github.com/eidos-agi/foreman.git
+foreman --help
+foreman-mcp
+```
+
+After `eidos-foreman` is live on PyPI, the public install path will be:
 
 ```bash
 pip install eidos-foreman

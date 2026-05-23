@@ -23,6 +23,7 @@ jobs:
           python -m venv /tmp/verify
           /tmp/verify/bin/pip install dist/*.whl
           /tmp/verify/bin/foreman --help
+          printf '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}\n' | /tmp/verify/bin/foreman-mcp
       - uses: actions/upload-artifact@v4
         with:
           name: dist

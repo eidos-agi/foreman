@@ -20,6 +20,10 @@ pytest
 python scripts/smoke_test.py
 python -m build
 twine check dist/*
+python -m venv /tmp/foreman-wheel
+/tmp/foreman-wheel/bin/pip install dist/*.whl
+/tmp/foreman-wheel/bin/foreman --help
+printf '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}\n' | /tmp/foreman-wheel/bin/foreman-mcp
 ```
 
 ## Development Notes
@@ -29,3 +33,5 @@ twine check dist/*
 - Put MCP surface behavior under `packages/foreman-mcp/`.
 - Do not require real agent API credentials in tests; use `smoke` for local
   deterministic runtime checks.
+- Before release, run a tracked-file secret scan and dependency audit from a
+  clean local environment.
